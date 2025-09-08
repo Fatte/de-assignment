@@ -8,7 +8,7 @@ with open("config/producer_config.yml", "r") as f:
     producer_config = yaml.safe_load(f)["producer_config"]["kafka"]
 
 TOPIC = producer_config["topic"]
-BOOTSTRAP_SERVERS = "kafka:9092"#producer_config["bootstrap_servers"]
+BOOTSTRAP_SERVERS = producer_config["bootstrap_servers"]
 
 def test_producer_consumer():
 
@@ -20,7 +20,7 @@ def test_producer_consumer():
     )
 
     # Aspetta che il producer inizi a inviare
-    time.sleep(10)
+    time.sleep(5)
 
     # Avvia il consumer
     consumer = KafkaConsumer(

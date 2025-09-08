@@ -1,4 +1,4 @@
-name: CI with Kafka
+name: CI Pipeline
 
 on:
   push:
@@ -50,4 +50,4 @@ jobs:
 
     - name: Run Kafka producer/consumer test
       run: |
-        pytest tests/test_kafka_producer_consumer.py
+        python tests/test_kafka_producer.py
