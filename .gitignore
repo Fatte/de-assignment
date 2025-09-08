@@ -4,4 +4,4 @@ src/producer.log
 __pycache__/
 .pytest_cache/
 .coverage
-.env
+s3/.env
