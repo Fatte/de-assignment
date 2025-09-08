@@ -4,7 +4,7 @@ import yaml
 from kafka import KafkaConsumer
 
 def load_config():
-    with open("config/producer_config.yml", "r") as f:
+    with open("../config/producer_config.yml", "r") as f:
         return yaml.safe_load(f)["producer_config"]["kafka"]
 
 def test_producer_consumer():
@@ -14,7 +14,7 @@ def test_producer_consumer():
 
     print("Avvio del producer...")
     producer_process = subprocess.Popen(
-        ["python", "code/event_producer.py"],
+        ["python", "event_producer.py"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True

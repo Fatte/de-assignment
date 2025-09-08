@@ -53,4 +53,4 @@ jobs:
     - name: Run Kafka producer/consumer test
       run: |
         cd code
-        python event_producer.py
+        pytest -s -v ../tests/test_kafka_producer.py
