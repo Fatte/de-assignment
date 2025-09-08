@@ -16,15 +16,22 @@ def test_producer_consumer():
     producer_process = subprocess.Popen(
         ["python", "code/event_producer.py"],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
+        text=True
     )
 
     print("Attesa per l'invio dei messaggi...")
     time.sleep(5)
 
-    stdout, stderr = producer_process.communicate(timeout=10)
-    print(f"stdout: {stdout}")
-    print(f"stderr: {stderr}")
+ 
+    # Verifica se il processo è ancora attivo
+    if producer_process.poll() is not None:
+        print("Il producer è terminato prematuramente.")
+        stdout, stderr = producer_process.communicate()
+        print("STDOUT:", stdout)
+        print("STDERR:", stderr)
+        assert False, "Il producer è terminato prematuramente."
+
 
     print("Avvio del consumer...")
     consumer = KafkaConsumer(
@@ -43,6 +50,7 @@ def test_producer_consumer():
 
     print("Terminazione del producer...")
     producer_process.terminate()
+    producer_process.wait(timeout=5)
 
     print(f"Numero di messaggi ricevuti: {len(messages)}")
     assert len(messages) >= 1, "Nessun messaggio ricevuto dal producer"
