@@ -4,7 +4,7 @@
 producer:
 	cd "kafka" && \
 	docker compose up -d && \
-	cd "../code" && \
+	cd "../src" && \
 	bash -c 'nohup venv/bin/python event_producer.py > producer.log 2>&1 & disown'
 	
 s3:
@@ -20,15 +20,15 @@ processor:
 	spark-submit \
 		--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.hadoop:hadoop-aws:3.3.2 \
 		--conf spark.sql.streaming.metricsEnabled=true \
-		--conf spark.metrics.conf=code/metrics.properties \
-		--conf spark.driver.extraJavaOptions="-javaagent:code/jmx_prometheus_javaagent-1.4.0.jar=7071:code/config.yaml" \
+		--conf spark.metrics.conf=src/metrics.properties \
+		--conf spark.driver.extraJavaOptions="-javaagent:src/jmx_prometheus_javaagent-1.4.0.jar=7071:src/config.yaml" \
         --conf spark.executorEnv.AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID \
         --conf spark.executorEnv.AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY \
         --conf spark.executorEnv.AWS_DEFAULT_REGION=$$AWS_DEFAULT_REGION \
         --conf spark.executorEnv.BUCKET_NAME=$$BUCKET_NAME \
         --conf spark.executorEnv.ENDPOINT_URL=$$ENDPOINT_URL \
         --conf spark.executorEnv.PROFILE=$$PROFILE \
-        code/streaming_processor.py
+        src/streaming_processor.py
 		
 grafana:
 	cd "grafana" && \

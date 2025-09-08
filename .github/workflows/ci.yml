@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  kafka-test:
+  test-kafka-event-producer:
     runs-on: ubuntu-latest
 
     services:
@@ -52,6 +52,6 @@ jobs:
 
     - name: Run Kafka producer/consumer test
       run: |
-        cd code
+        cd src
         nohup python event_producer.py &
         pytest -s -v ../tests/test_kafka_producer.py
