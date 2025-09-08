@@ -1,0 +1,6 @@
+startDelaySeconds: 0
+username: ""
+password: ""
+ssl: false
+rules:
+  - pattern: '.*'

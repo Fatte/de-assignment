@@ -1,0 +1,15 @@
+event_schema:
+  name: device_event
+  version: 1.0
+  key:
+      name: device_id
+      type: string
+  fields:
+    - name: timestamp
+      type: datetime
+      format: iso8601
+    - name: temperature
+      type: float
+    - name: status
+      type: enum
+      values: ["ok", "warning", "error"]

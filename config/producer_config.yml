@@ -1,0 +1,11 @@
+producer_config:
+  name: producer_setup
+  version: 1.0
+  kafka:
+    bootstrap_servers: "localhost:9092"
+    topic: "device_topic"
+    delivery_exactly_once: false
+    retries: 5
+    acks: "all"
+    num_generators: 10
+    event_frequency: 0.33
