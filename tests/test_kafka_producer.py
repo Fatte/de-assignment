@@ -22,6 +22,10 @@ def test_producer_consumer():
     print("Attesa per l'invio dei messaggi...")
     time.sleep(5)
 
+    stdout, stderr = producer_process.communicate(timeout=10)
+    print(f"stdout: {stdout}")
+    print(f"stderr: {stderr}")
+
     print("Avvio del consumer...")
     consumer = KafkaConsumer(
         topic,
