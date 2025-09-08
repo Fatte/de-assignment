@@ -20,6 +20,9 @@ def get_spark_session(app_name="DeviceEventStreaming") -> SparkSession:
         "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     }
 
+    if is_localstack:
+        print(f"S3 ENVIRONMENT CONF: {s3_conf}")
+
     builder = SparkSession.builder.appName(app_name)
     for k, v in s3_conf.items():
         builder = builder.config(k, v)

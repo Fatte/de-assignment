@@ -119,7 +119,7 @@ jobs:
         set -a
         source ../s3/.env
         set +a
-        nohup spark-submit \
+        spark-submit \
           --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.hadoop:hadoop-aws:3.3.2 \
           --conf spark.sql.streaming.metricsEnabled=true \
           --conf spark.metrics.conf=metrics.properties \
@@ -130,7 +130,7 @@ jobs:
           --conf spark.executorEnv.BUCKET_NAME=$BUCKET_NAME \
           --conf spark.executorEnv.ENDPOINT_URL=$ENDPOINT_URL \
           --conf spark.executorEnv.PROFILE=$PROFILE \
-          streaming_processor.py > spark.log 2>&1 &
+          streaming_processor.py
         python ../tests/integration/spark_event_producer.py
   test-unit-and-coverage:
     runs-on: ubuntu-latest
