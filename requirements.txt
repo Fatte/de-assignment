@@ -2,3 +2,4 @@ kafka-python==2.2.15
 pyyaml==6.0.2
 pytest==8.4.2
 pytest-cov==6.3.0
+pyspark==4.0.1
