@@ -50,4 +50,4 @@ jobs:
 
     - name: Run Kafka producer/consumer test
       run: |
-        python tests/test_kafka_producer.py
+        pytest -s -v tests/test_kafka_producer.py

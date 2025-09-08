@@ -3,29 +3,29 @@ import time
 import yaml
 from kafka import KafkaConsumer
 
-# Carica il producer config
-with open("config/producer_config.yml", "r") as f:
-    producer_config = yaml.safe_load(f)["producer_config"]["kafka"]
-
-TOPIC = producer_config["topic"]
-BOOTSTRAP_SERVERS = producer_config["bootstrap_servers"]
+def load_config():
+    with open("config/producer_config.yml", "r") as f:
+        return yaml.safe_load(f)["producer_config"]["kafka"]
 
 def test_producer_consumer():
+    config = load_config()
+    topic = config["topic"]
+    bootstrap_servers = config["bootstrap_servers"]
 
-    # Avvia il producer in background
+    print("Avvio del producer...")
     producer_process = subprocess.Popen(
         ["python", "code/event_producer.py"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
-    # Aspetta che il producer inizi a inviare
+    print("Attesa per l'invio dei messaggi...")
     time.sleep(5)
 
-    # Avvia il consumer
+    print("Avvio del consumer...")
     consumer = KafkaConsumer(
-        TOPIC,
-        bootstrap_servers=BOOTSTRAP_SERVERS,
+        topic,
+        bootstrap_servers=bootstrap_servers,
         auto_offset_reset='earliest',
         consumer_timeout_ms=10000
     )
@@ -33,12 +33,12 @@ def test_producer_consumer():
     messages = []
     for msg in consumer:
         messages.append(msg.value)
-        print(f"Ricevuto: {msg.value}")
+        print(f"Messaggio ricevuto: {msg.value}")
         if len(messages) >= 1:
             break
 
-    # Termina il producer
+    print("Terminazione del producer...")
     producer_process.terminate()
 
+    print(f"Numero di messaggi ricevuti: {len(messages)}")
     assert len(messages) >= 1, "Nessun messaggio ricevuto dal producer"
-
