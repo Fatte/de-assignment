@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test-kafka-event-producer:
+  test-kafka-event-producer-integration:
     runs-on: ubuntu-latest
 
     services:
@@ -54,4 +54,23 @@ jobs:
       run: |
         cd src
         nohup python event_producer.py &
-        pytest -s -v ../tests/test_kafka_producer.py
+        pytest -s -v ../tests/integration/test_kafka_producer.py
+  test-unit-and-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run Unit test and test coverage
+      run: |
+        pytest --cov=src tests/unit/

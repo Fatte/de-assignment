@@ -2,7 +2,10 @@ import pytest
 import yaml
 import json
 from unittest.mock import patch, MagicMock
-from src import event_producer
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+import event_producer
 
 
 def test_generate_event_structure():
@@ -30,7 +33,7 @@ def test_load_yaml(tmp_path):
     assert result == {"key": "value"}
 
 
-@patch("src.event_producer.KafkaProducer")
+@patch("event_producer.KafkaProducer")
 def test_initialize_producer(mock_kafka):
     config = {
         "bootstrap_servers": "localhost:9092",
@@ -43,9 +46,8 @@ def test_initialize_producer(mock_kafka):
     assert producer == mock_kafka.return_value
 
 
-@patch("src.event_producer.time.sleep", return_value=None)
-@patch("src.event_producer.KafkaProducer")
-def test_produce_events_test_mode(mock_kafka, mock_sleep):
+@patch("event_producer.time.sleep", return_value=None)
+def test_produce_events_test_mode(mock_sleep):
     mock_producer = MagicMock()
     schema = {
         "event_schema": {

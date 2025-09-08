@@ -1,6 +1,7 @@
 src/venv/
 s3/volume/
 src/producer.log
-tests/__pycache__
-tests/.pytest_cache
-
+__pycache__/
+.pytest_cache/
+.coverage
+.env
