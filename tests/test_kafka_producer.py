@@ -52,5 +52,11 @@ def test_producer_consumer():
     producer_process.terminate()
     producer_process.wait(timeout=5)
 
+    stdout, stderr = producer_process.communicate(timeout=5)
+    print("STDOUT del producer:")
+    print(stdout)
+    print("STDERR del producer:")
+    print(stderr)
+
     print(f"Numero di messaggi ricevuti: {len(messages)}")
     assert len(messages) >= 1, "Nessun messaggio ricevuto dal producer"
