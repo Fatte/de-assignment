@@ -27,6 +27,7 @@ jobs:
           KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
           KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
           KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+          KAFKA_CFG_PROCESS_ROLES: broker
           ALLOW_PLAINTEXT_LISTENER: yes
 
     steps:
