@@ -10,6 +10,8 @@ event_schema:
       format: iso8601
     - name: temperature
       type: float
+    - name: event_duration
+      type: float
     - name: status
       type: enum
       values: ["ok", "warning", "error"]

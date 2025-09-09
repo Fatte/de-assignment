@@ -60,28 +60,15 @@ def parse_and_filter(df: DataFrame, schema: StructType) -> DataFrame:
         .filter(col("event_duration").isNotNull()) \
         .filter(col("status") != 'error')
 
-def aggregate_events(df: DataFrame) -> DataFrame:
-    return df.withWatermark("event_time", "1 minute") \
-        .groupBy(
-            window(col("event_time"), "1 minute"),
-            col("device_id")
-        ) \
-        .agg(
-            avg("temperature").alias("avg_temperature"),
-            avg("event_duration").alias("avg_event_duration"),
-            count("event_time").alias("num_events")
-        ) \
-        .withColumn("window_start", date_format(col("window").getField("start"), "yyyy-MM-dd HH_mm"))
-
 def write_stream(df: DataFrame, bucket_name: str):
-    output_path = f"s3a://{bucket_name}/stream_output/"
-    checkpoint_path = f"s3a://{bucket_name}/stream_checkpoints/"
+    output_path = f"s3a://{bucket_name}/raw/stream_output/"
+    checkpoint_path = f"s3a://{bucket_name}/raw/stream_checkpoints/"
     return df.writeStream \
         .outputMode("append") \
         .format("parquet") \
         .option("path", output_path) \
         .option("checkpointLocation", checkpoint_path) \
-        .partitionBy("device_id", "window_start") \
+        .partitionBy("device_id") \
         .trigger(processingTime="60 seconds") \
         .start()
 
@@ -90,6 +77,5 @@ if __name__ == "__main__":
     schema = get_event_schema()
     kafka_df = read_kafka_stream(spark, topic="device_topic")
     parsed_df = parse_and_filter(kafka_df, schema)
-    aggregated_df = aggregate_events(parsed_df)
-    query = write_stream(aggregated_df, os.environ.get("BUCKET_NAME"))
+    query = write_stream(parsed_df, os.environ.get("BUCKET_NAME"))
     query.awaitTermination()

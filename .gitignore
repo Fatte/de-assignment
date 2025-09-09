@@ -1,7 +1,11 @@
 src/venv/
 s3/volume/
 src/producer.log
+streaming_processor.log
+streaming_raw_writer.log
+percentile_processor.log
 __pycache__/
 .pytest_cache/
 .coverage
+nohup.out
 s3/.env

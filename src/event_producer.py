@@ -12,9 +12,14 @@ def generate_event(schema, num_generators):
         type_ = field["type"]
 
         if type_ == "datetime":
-            event[name] = time.time()
+            #delta_seconds = 7 * 24 * 60 * 60
+            delta_seconds = 0
+            event[name] = time.time() + random.uniform(-delta_seconds, delta_seconds)
         elif type_ == "float":
-            event[name] = round(random.uniform(20.0, 30.0), 2)
+            if name == 'event_duration':
+                event[name] = round(random.gauss(10.0, 2.0), 2)
+            else:
+                event[name] = round(random.uniform(20.0, 30.0), 2)
         elif type_ == "enum":
             event[name] = random.choice(field["values"])
     key_name = schema["event_schema"]["key"]["name"]

@@ -14,7 +14,8 @@ def test_generate_event_structure():
             "fields": [
                 {"name": "timestamp", "type": "datetime"},
                 {"name": "temperature", "type": "float"},
-                {"name": "status", "type": "enum", "values": ["ok", "fail"]}
+                {"name": "event_duration", "type": "float"},
+                {"name": "status", "type": "enum", "values": ["ok", "warning", "error"]}
             ],
             "key": {"name": "device_id"}
         }
@@ -22,6 +23,7 @@ def test_generate_event_structure():
     event, key = event_producer.generate_event(schema, 3)
     assert "timestamp" in event
     assert "temperature" in event
+    assert "event_duration" in event
     assert "status" in event
     assert key.startswith("device_id_")
 
@@ -54,7 +56,8 @@ def test_produce_events_test_mode(mock_sleep):
             "fields": [
                 {"name": "timestamp", "type": "datetime"},
                 {"name": "temperature", "type": "float"},
-                {"name": "status", "type": "enum", "values": ["ok", "fail"]}
+                {"name": "event_duration", "type": "float"},
+                {"name": "status", "type": "enum", "values": ["ok", "warning", "error"]}
             ],
             "key": {"name": "device_id"}
         }

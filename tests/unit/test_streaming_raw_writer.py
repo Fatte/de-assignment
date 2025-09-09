@@ -4,10 +4,10 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
-import streaming_processor
+import streaming_raw_writer
 
 
-@patch("streaming_processor.SparkSession")
+@patch("streaming_raw_writer.SparkSession")
 def test_get_spark_session(mock_spark_session):
     mock_builder = MagicMock()
     mock_spark_session.builder = mock_builder
@@ -16,12 +16,12 @@ def test_get_spark_session(mock_spark_session):
     mock_builder.config.return_value = mock_builder
     mock_builder.getOrCreate.return_value = MagicMock()
 
-    spark = streaming_processor.get_spark_session("TestApp")
+    spark = streaming_raw_writer.get_spark_session("TestApp")
     assert spark is not None
 
 
 def test_get_event_schema():
-    schema = streaming_processor.get_event_schema()
+    schema = streaming_raw_writer.get_event_schema()
     assert isinstance(schema, StructType)
     field_names = [field.name for field in schema.fields]
     assert "timestamp" in field_names
@@ -30,7 +30,7 @@ def test_get_event_schema():
     assert "status" in field_names
 
 
-@patch("streaming_processor.SparkSession")
+@patch("streaming_raw_writer.SparkSession")
 def test_read_kafka_stream(mock_spark_session):
     mock_df = MagicMock()
     mock_reader = MagicMock()
@@ -39,7 +39,7 @@ def test_read_kafka_stream(mock_spark_session):
     mock_reader.load.return_value = mock_df
     mock_spark_session.readStream = mock_reader
 
-    result = streaming_processor.read_kafka_stream(mock_spark_session, "test_topic")
+    result = streaming_raw_writer.read_kafka_stream(mock_spark_session, "test_topic")
     assert result == mock_df
 
 
@@ -55,9 +55,8 @@ def test_write_stream():
     mock_writer.partitionBy.return_value = mock_writer
     mock_writer.trigger.return_value = mock_writer
     mock_writer.start.return_value = "stream_started"
-
-    # Esegui la funzione
-    result = streaming_processor.write_stream(mock_df, "test-bucket")
+    
+    result = streaming_raw_writer.write_stream(mock_df, "test-bucket")
 
     # Verifica
     assert result == "stream_started"

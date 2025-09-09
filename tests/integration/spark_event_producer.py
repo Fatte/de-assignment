@@ -15,11 +15,11 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 events = [
-    ("device_id_1", {"timestamp": 1700000000, "temperature": 22.0, "status": "ok"}),
-    ("device_id_1", {"timestamp": 1700000020, "temperature": 23.0, "status": "ok"}),
-    ("device_id_2", {"timestamp": 1700000000, "temperature": 25.0, "status": "ok"}),
-    ("device_id_2", {"timestamp": 1700000020, "temperature": 30.0, "status": "error"}),
-    ("device_id_3", {"timestamp": 1700000020, "temperature": 30.0, "status": "error"})
+    ("device_id_1", {"timestamp": 1700000000, "temperature": 22.0, "event_duration": 2.3, "status": "ok"}),
+    ("device_id_1", {"timestamp": 1700000020, "temperature": 23.0, "event_duration": 8.1, "status": "ok"}),
+    ("device_id_2", {"timestamp": 1700000000, "temperature": 25.0, "event_duration": 5.5, "status": "ok"}),
+    ("device_id_2", {"timestamp": 1700000020, "temperature": 30.0, "event_duration": 2.0, "status": "error"}),
+    ("device_id_3", {"timestamp": 1700000020, "temperature": 30.0, "event_duration": 1.9, "status": "error"})
 ]
 
 for event in events:
