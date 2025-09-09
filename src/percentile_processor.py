@@ -3,29 +3,18 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date, col, avg, stddev, countDistinct, expr
 
 
-RAW_STREAM_PATH = 's3a://my-parametric-bucket/raw/stream_output/'
-OUTPUT_PATH = 's3a://my-parametric-bucket/raw/percentile_output/'
-NUM_EVENTS_THRESHOLD = 200
-
 def get_spark_session(app_name="DeviceEventPercentileProcessor"):
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
-    BUCKET_NAME = os.environ.get("BUCKET_NAME")
     ENDPOINT_URL = os.environ.get("ENDPOINT_URL")
-
-    is_localstack = ENDPOINT_URL and ENDPOINT_URL.startswith("http://localhost")
 
     s3_conf = {
         "spark.hadoop.fs.s3a.access.key": AWS_ACCESS_KEY_ID,
         "spark.hadoop.fs.s3a.secret.key": AWS_SECRET_ACCESS_KEY,
-        "spark.hadoop.fs.s3a.endpoint": ENDPOINT_URL if is_localstack else f"s3.{AWS_DEFAULT_REGION}.amazonaws.com",
-        "spark.hadoop.fs.s3a.path.style.access": "true" if is_localstack else "false",
+        "spark.hadoop.fs.s3a.endpoint": ENDPOINT_URL,
+        "spark.hadoop.fs.s3a.path.style.access": "true" if ENDPOINT_URL and ENDPOINT_URL.startswith("http://localhost") else "false",
         "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     }
-
-    if is_localstack:
-        print(f"S3 ENVIRONMENT CONF: {s3_conf}")
 
     builder = SparkSession.builder.appName(app_name)
     for k, v in s3_conf.items():
@@ -69,11 +58,15 @@ def write_to_csv(df, path):
 
 
 if __name__ == "__main__":
+    STREAMING_RAW_S3_OUTPUT_PATH = os.environ.get("STREAMING_RAW_S3_OUTPUT_PATH")
+    PERCENTILE_VALIDATION_CSV_OUTPUT_PATH = os.environ.get("PERCENTILE_VALIDATION_CSV_OUTPUT_PATH")
+    NUM_EVENT_THRESHOLD = int(os.environ.get("NUM_EVENT_THRESHOLD"))
+
     spark = get_spark_session()
-    raw_df = read_raw_stream(spark, RAW_STREAM_PATH)
+    raw_df = read_raw_stream(spark, STREAMING_RAW_S3_OUTPUT_PATH)
     dated_df = add_event_date(raw_df)
-    stats_df = compute_stats(dated_df, NUM_EVENTS_THRESHOLD)
+    stats_df = compute_stats(dated_df, NUM_EVENT_THRESHOLD)
     filtered_df = filter_outliers(dated_df, stats_df)
     percentile_df = compute_percentile(filtered_df)
-    write_to_csv(percentile_df, OUTPUT_PATH)
+    write_to_csv(percentile_df, PERCENTILE_VALIDATION_CSV_OUTPUT_PATH)
 

@@ -30,16 +30,23 @@ def test_get_event_schema():
     assert "status" in field_names
 
 
-@patch("streaming_raw_writer.SparkSession")
+
+@patch("streaming_processor.SparkSession")
 def test_read_kafka_stream(mock_spark_session):
     mock_df = MagicMock()
     mock_reader = MagicMock()
     mock_reader.format.return_value = mock_reader
     mock_reader.option.return_value = mock_reader
     mock_reader.load.return_value = mock_df
-    mock_spark_session.readStream = mock_reader
 
-    result = streaming_raw_writer.read_kafka_stream(mock_spark_session, "test_topic")
+    # Simula il comportamento di spark.readStream
+    mock_spark = MagicMock()
+    mock_spark.readStream = mock_reader
+    mock_spark_session.return_value = mock_spark
+
+    # Chiama la funzione con tutti gli argomenti richiesti
+    result = streaming_raw_writer.read_kafka_stream(mock_spark, "test_topic", "localhost:9092")
+
     assert result == mock_df
 
 
@@ -55,8 +62,13 @@ def test_write_stream():
     mock_writer.partitionBy.return_value = mock_writer
     mock_writer.trigger.return_value = mock_writer
     mock_writer.start.return_value = "stream_started"
-    
-    result = streaming_raw_writer.write_stream(mock_df, "test-bucket")
+
+    # Esegui la funzione con entrambi gli argomenti richiesti
+    result = streaming_raw_writer.write_stream(
+        mock_df,
+        "s3a://test-bucket/output/",
+        "s3a://test-bucket/checkpoints/"
+    )
 
     # Verifica
     assert result == "stream_started"

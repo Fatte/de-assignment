@@ -3,25 +3,19 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, from_json, date_format, window, avg, count, from_unixtime
 from pyspark.sql.types import StructType, StringType, FloatType
 
+
 def get_spark_session(app_name="DeviceEventStreaming") -> SparkSession:
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
-    BUCKET_NAME = os.environ.get("BUCKET_NAME")
     ENDPOINT_URL = os.environ.get("ENDPOINT_URL")
-
-    is_localstack = ENDPOINT_URL and ENDPOINT_URL.startswith("http://localhost")
 
     s3_conf = {
         "spark.hadoop.fs.s3a.access.key": AWS_ACCESS_KEY_ID,
         "spark.hadoop.fs.s3a.secret.key": AWS_SECRET_ACCESS_KEY,
-        "spark.hadoop.fs.s3a.endpoint": ENDPOINT_URL if is_localstack else f"s3.{AWS_DEFAULT_REGION}.amazonaws.com",
-        "spark.hadoop.fs.s3a.path.style.access": "true" if is_localstack else "false",
+        "spark.hadoop.fs.s3a.endpoint": ENDPOINT_URL,
+        "spark.hadoop.fs.s3a.path.style.access": "true" if ENDPOINT_URL and ENDPOINT_URL.startswith("http://localhost") else "false",
         "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     }
-
-    if is_localstack:
-        print(f"S3 ENVIRONMENT CONF: {s3_conf}")
 
     builder = SparkSession.builder.appName(app_name)
     for k, v in s3_conf.items():
@@ -38,10 +32,10 @@ def get_event_schema() -> StructType:
         .add("event_duration", FloatType()) \
         .add("status", StringType())
 
-def read_kafka_stream(spark: SparkSession, topic: str) -> DataFrame:
+def read_kafka_stream(spark: SparkSession, topic: str, bootstrap_servers: str) -> DataFrame:
     return spark.readStream \
         .format("kafka") \
-        .option("kafka.bootstrap.servers", "localhost:9092") \
+        .option("kafka.bootstrap.servers", bootstrap_servers) \
         .option("subscribe", topic) \
         .option("startingOffsets", "latest") \
         .load()
@@ -73,9 +67,7 @@ def aggregate_events(df: DataFrame) -> DataFrame:
         ) \
         .withColumn("window_start", date_format(col("window").getField("start"), "yyyy-MM-dd HH_mm"))
 
-def write_stream(df: DataFrame, bucket_name: str):
-    output_path = f"s3a://{bucket_name}/stream_output/"
-    checkpoint_path = f"s3a://{bucket_name}/stream_checkpoints/"
+def write_stream(df: DataFrame, output_path: str, checkpoint_path: str):
     return df.writeStream \
         .outputMode("append") \
         .format("parquet") \
@@ -86,10 +78,17 @@ def write_stream(df: DataFrame, bucket_name: str):
         .start()
 
 if __name__ == "__main__":
+    STREAMING_AGGREGATED_S3_OUTPUT_PATH = os.environ.get("STREAMING_AGGREGATED_S3_OUTPUT_PATH")
+    STREAMING_AGGREGATED_S3_CHECKPOINT_PATH = os.environ.get("STREAMING_AGGREGATED_S3_CHECKPOINT_PATH")
+    KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
+    KAFKA_TOPIC_NAME = os.environ.get("KAFKA_TOPIC_NAME")
+
+    print(STREAMING_AGGREGATED_S3_OUTPUT_PATH, STREAMING_AGGREGATED_S3_CHECKPOINT_PATH, KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC_NAME)
+
     spark = get_spark_session()
     schema = get_event_schema()
-    kafka_df = read_kafka_stream(spark, topic="device_topic")
+    kafka_df = read_kafka_stream(spark, KAFKA_TOPIC_NAME, KAFKA_BOOTSTRAP_SERVERS)
     parsed_df = parse_and_filter(kafka_df, schema)
     aggregated_df = aggregate_events(parsed_df)
-    query = write_stream(aggregated_df, os.environ.get("BUCKET_NAME"))
+    query = write_stream(aggregated_df, STREAMING_AGGREGATED_S3_OUTPUT_PATH, STREAMING_AGGREGATED_S3_CHECKPOINT_PATH)
     query.awaitTermination()
