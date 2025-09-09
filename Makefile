@@ -1,5 +1,5 @@
 
-.PHONY: venv producer s3 bucket generate_env generate_aws_env processor grafana test clean kill_producer kill_processor run
+.PHONY: venv producer s3 bucket generate_env generate_aws_env processor percentile_job validate grafana test clean kill_producer kill_processor run
 
 CONFIG_FILE=config/streaming_config.yml
 ENV_FILE=.env.generated
@@ -13,6 +13,8 @@ venv:
 producer:
 	cd "kafka" && \
 	docker compose up -d && \
+	echo "Waiting for Kafka setup..." && \
+	sleep 20 && \
 	cd "../src" && \
 	bash -c 'nohup venv/bin/python event_producer.py > producer.log 2>&1 & disown'
 	
@@ -96,6 +98,21 @@ percentile_job:
 		--conf spark.executorEnv.PERCENTILE_VALIDATION_CSV_OUTPUT_PATH=$$PERCENTILE_VALIDATION_CSV_OUTPUT_PATH \
 		--conf spark.executorEnv.NUM_EVENT_THRESHOLD=$$NUM_EVENT_THRESHOLD \
         src/percentile_processor.py > percentile_processor.log 2>&1 & disown'
+
+validate:
+	@export $(shell grep -v '^#' s3/.env | xargs); \
+	bash -c ' \
+		set -a; \
+        source $(ENV_FILE); \
+        set +a; \
+		spark-submit \
+		--packages org.apache.hadoop:hadoop-aws:3.3.2 \
+		--conf spark.metrics.conf=src/metrics.properties \
+        --conf spark.executorEnv.AWS_ACCESS_KEY_ID=$$AWS_ACCESS_KEY_ID \
+        --conf spark.executorEnv.AWS_SECRET_ACCESS_KEY=$$AWS_SECRET_ACCESS_KEY \
+        --conf spark.executorEnv.ENDPOINT_URL=$$ENDPOINT_URL \
+		--conf spark.executorEnv.STREAMING_AGGREGATED_S3_OUTPUT_PATH=$$STREAMING_AGGREGATED_S3_OUTPUT_PATH \
+        src/schema_validator.py'
 		
 grafana:
 	cd "grafana" && \
@@ -148,10 +165,7 @@ run:
 	$(MAKE) bucket
 	$(MAKE) generate_env
 	$(MAKE) producer
-	@sleep 2
 	$(MAKE) grafana
-	@echo "Waiting for Kafka readiness..."
-	@sleep 20
 	$(MAKE) processor
 
 

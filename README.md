@@ -41,6 +41,7 @@ Before running the project, ensure the following are installed on your **Unix-ba
 │   ├── event_producer.py
 │   ├── streaming_processor.py
 │   ├── streaming_raw_writer.py
+│   ├── schema_validator.py
 │   ├── percentile_processor.py
 │   ├── lib
 │   └── metrics.properties
@@ -74,7 +75,8 @@ Contains configuration files used by the producer and schema validation:
 Core source code for streaming and batch processing:
 - **`event_producer.py`** → Simulates IoT devices and sends events to Kafka.  
 - **`streaming_processor.py`** → Processes events in real-time, applies transformations and aggregations.  
-- **`streaming_raw_writer.py`** → Writes raw events to S3 in Parquet format.  
+- **`streaming_raw_writer.py`** → Writes raw events to S3 in Parquet format.
+- **`schema_validator.py`** → Batch job to valide the schema of the aggregated records on S3. 
 - **`percentile_processor.py`** → Batch job to compute percentiles over historical data.  
 - **`lib`** → Contains Java agent and the confs used to expose Spark metrics to Prometheus.  
 - **`metrics.properties`** → Spark metrics configuration file.  
@@ -123,7 +125,7 @@ Contains unit and integration tests:
 Download the project from GitHub and make sure your **Unix-based** machine satisfies the prerequisites described above.
 
 ```bash
-git clone [<REPOSITORY_URL>](https://github.com/Fatte/de-assignment.git)
+git clone https://github.com/Fatte/de-assignment.git
 cd de-assignment
 ```
 
@@ -163,7 +165,16 @@ This command will sequentially:
 
 ---
 
-### 5. Run the batch job (95th percentile)
+### 5. Run the schema validation job
+To run the Spark job that validates the schema of the aggregated records on S3:
+
+```bash
+make validate
+```
+
+---
+
+### 6. Run the batch job (95th percentile)
 To run the Spark batch job that computes the 95th percentile:
 
 ```bash
@@ -172,7 +183,7 @@ make percentile_job
 
 ---
 
-### 6. Run the tests
+### 7. Run the tests
 To execute the unit tests:
 
 ```bash
@@ -187,8 +198,9 @@ make test
 |-------------------------|-----------------------------------------------------------------------------|
 | `make generate_aws_env` | Generate `s3/.env` file with S3 credentials and bucket config (template values) |
 | `make run`              | Launch full pipeline: S3 + Kafka + Spark streaming + Grafana/Prometheus      |
+| `make validate`         | Run Spark job for aggregated data schema validation on S3                    |
 | `make percentile_job`   | Run Spark batch job to compute 95th percentile                               |
 | `make clean`            | Destroy all the project docker containers                                    |
-| `make kill producer`    | Kill the event producer script                                               |
-| `make kill processor`   | Kill the streaming pyspark jobs                                              |
+| `make kill_producer`    | Kill the event producer script                                               |
+| `make kill_processor`   | Kill the streaming pyspark jobs                                              |
 

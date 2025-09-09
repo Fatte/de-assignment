@@ -58,9 +58,6 @@ def produce_events(producer, schema, producer_config, test=False):
         
 
 if __name__ == "__main__":
-    # Wait for Kafka service
-    time.sleep(20)
-
     # Load event schema
     schema = load_yaml("../config/event_schema.yml")
 
