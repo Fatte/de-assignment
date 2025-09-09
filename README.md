@@ -123,19 +123,20 @@ Contains unit and integration tests:
 Download the project from GitHub and make sure your **Unix-based** machine satisfies the prerequisites described above.
 
 ```bash
-git clone <REPOSITORY_URL>
-cd <REPOSITORY_NAME>
+git clone [<REPOSITORY_URL>](https://github.com/Fatte/de-assignment.git)
+cd de-assignment
 ```
 
 ---
 
 ### 2. Generate the `.env` file
-Create the `.env` file containing environment variables (credentials, S3 connection settings, and bucket configuration):
+Create the `.env` file in the `s3` folder with:
 
 ```bash
 make generate_aws_env
 ```
 
+- The file contains environment variables (credentials, S3 connection settings, and bucket configuration).
 - The generated file is just a **template with placeholder values** → you must update it with your actual credentials and configuration.
 
 ---
@@ -157,7 +158,7 @@ This command will sequentially:
 - Create the Python **virtual environment**  
 - Connect to **S3** and create the bucket (if it does not exist)  
 - Set up **Kafka** (create topic + start the event producer)  
-- Start **Grafana + Prometheus** at `http://localhost:3000`  
+- Start **Grafana + Prometheus** at `http://localhost:3000` (username: admin - password: admin)
 - Start **Spark Streaming jobs** at `http://localhost:4040`  
 
 ---
@@ -184,8 +185,10 @@ make test
 
 | Command                | Description                                                                 |
 |-------------------------|-----------------------------------------------------------------------------|
-| `make generate_aws_env` | Generate `.env` file with S3 credentials and bucket config (template values) |
+| `make generate_aws_env` | Generate `s3/.env` file with S3 credentials and bucket config (template values) |
 | `make run`              | Launch full pipeline: S3 + Kafka + Spark streaming + Grafana/Prometheus      |
 | `make percentile_job`   | Run Spark batch job to compute 95th percentile                               |
-| `make test`             | Run unit tests                                                              |
+| `make clean`            | Destroy all the project docker containers                                    |
+| `make kill producer`    | Kill the event producer script                                               |
+| `make kill processor`   | Kill the streaming pyspark jobs                                              |
 
