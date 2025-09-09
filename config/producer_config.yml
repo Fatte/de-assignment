@@ -8,4 +8,4 @@ producer_config:
     retries: 5
     acks: "all"
     num_generators: 10
-    event_frequency: 0.33
+    event_frequency: 0.01

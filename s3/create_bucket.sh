@@ -31,19 +31,23 @@ else
   echo "AWS reale rilevato."
 fi
 
-CMD="aws s3api create-bucket --bucket $BUCKET_NAME --region $AWS_DEFAULT_REGION"
+if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+  echo "Bucket $BUCKET_NAME already exists. Skipping creation."
+else
+  CMD="aws s3api create-bucket --bucket $BUCKET_NAME --region $AWS_DEFAULT_REGION"
 
-if [ -n "$ENDPOINT_URL" ]; then
-  CMD="$CMD --endpoint-url $ENDPOINT_URL"
+  if [ -n "$ENDPOINT_URL" ]; then
+    CMD="$CMD --endpoint-url $ENDPOINT_URL"
+  fi
+
+  if [ -n "$PROFILE" ]; then
+    CMD="$CMD --profile $PROFILE"
+  fi
+
+  if [ "$AWS_DEFAULT_REGION" != "us-east-1" ]; then
+    CMD="$CMD --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION"
+  fi
+
+  echo "Creating bucket with command: $CMD"
+  eval $CMD
 fi
-
-if [ -n "$PROFILE" ]; then
-  CMD="$CMD --profile $PROFILE"
-fi
-
-if [ "$AWS_DEFAULT_REGION" != "us-east-1" ]; then
-  CMD="$CMD --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION"
-fi
-
-echo "Creating bucket with command: $CMD"
-eval $CMD
