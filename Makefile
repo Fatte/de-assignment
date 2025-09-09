@@ -1,9 +1,14 @@
 
-.PHONY: producer s3 bucket generate_env generate_aws_env processor grafana test clean kill_producer kill_processor
+.PHONY: venv producer s3 bucket generate_env generate_aws_env processor grafana test clean kill_producer kill_processor run
 
 CONFIG_FILE=config/streaming_config.yml
 ENV_FILE=.env.generated
 ENV_FILE_AWS=s3/.env
+
+venv:
+	@test -d src/venv || python3 -m venv src/venv
+	@src/venv/bin/pip install --upgrade pip
+	@src/venv/bin/pip install -r requirements.txt
 
 producer:
 	cd "kafka" && \
@@ -36,6 +41,7 @@ generate_aws_env:
 	@echo "AWS_ACCESS_KEY_ID=test" > $(ENV_FILE_AWS)
 	@echo "AWS_SECRET_ACCESS_KEY=test" >> $(ENV_FILE_AWS)
 	@echo "AWS_DEFAULT_REGION=eu-central-1" >> $(ENV_FILE_AWS)
+	@echo "BUCKET_NAME=my-parametric-bucket" >> $(ENV_FILE_AWS)
 	@echo "ENDPOINT_URL=s3.eu-central-1.amazonaws.com" >> $(ENV_FILE_AWS)
 	@echo "PROFILE=default" >> $(ENV_FILE_AWS)
 
@@ -134,4 +140,19 @@ kill_processor:
     else \
         echo "No streaming_raw_writer.py process found."; \
     fi
+
+run:
+	@echo "Running project..."
+	sudo apt update && sudo apt install -y yq
+	$(MAKE) venv
+	$(MAKE) bucket
+	$(MAKE) generate_env
+	$(MAKE) producer
+	@sleep 2
+	$(MAKE) grafana
+	@echo "Waiting for Kafka readiness..."
+	@sleep 20
+	$(MAKE) processor
+
+
 
