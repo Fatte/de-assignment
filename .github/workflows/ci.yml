@@ -88,14 +88,6 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Set up Spark
-      run: |
-        wget -q https://dlcdn.apache.org/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz
-        tar -xzf spark-3.5.1-bin-hadoop3.tgz
-        echo "SPARK_HOME=$PWD/spark-3.5.1-bin-hadoop3" >> $GITHUB_ENV
-        echo "$SPARK_HOME/bin" >> $GITHUB_PATH
-
-
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
