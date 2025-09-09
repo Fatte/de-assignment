@@ -28,7 +28,7 @@ processor:
         --conf spark.executorEnv.BUCKET_NAME=$$BUCKET_NAME \
         --conf spark.executorEnv.ENDPOINT_URL=$$ENDPOINT_URL \
         --conf spark.executorEnv.PROFILE=$$PROFILE \
-        src/streaming_processor.py & disown' && \
+        src/streaming_processor.py > streaming_processor.log 2>&1 & disown' && \
 	bash -c 'nohup spark-submit \
 		--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.hadoop:hadoop-aws:3.3.2 \
 		--conf spark.metrics.conf=src/metrics.properties \
