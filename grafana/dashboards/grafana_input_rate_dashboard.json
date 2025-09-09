@@ -1,7 +1,7 @@
 {
   "id": null,
-  "uid": "spark-streaming-input-rate",
-  "title": "Spark Streaming Input Rate",
+  "uid": "spark-streaming-metrics-compact",
+  "title": "Spark Streaming Metrics",
   "timezone": "browser",
   "schemaVersion": 36,
   "version": 1,
@@ -9,7 +9,7 @@
   "panels": [
     {
       "type": "timeseries",
-      "title": "Input Rate per Query (Regex)",
+      "title": "Input Rate",
       "targets": [
         {
           "expr": "{__name__=~\"metrics_local_.*_driver_spark_streaming_.*_inputRate_total_Number\"}",
@@ -22,7 +22,8 @@
         "defaults": {
           "unit": "rows/s",
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "green"
           },
           "custom": {
             "drawStyle": "line",
@@ -45,9 +46,99 @@
         }
       },
       "gridPos": {
-        "h": 12,
-        "w": 24,
+        "h": 6,
+        "w": 8,
         "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency",
+      "targets": [
+        {
+          "expr": "{__name__=~\"metrics_local_.*_driver_spark_streaming_.*_latency_Value\"}",
+          "format": "time_series",
+          "legendFormat": "{{__name__}}",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Processing Rate",
+      "targets": [
+        {
+          "expr": "{__name__=~\"metrics_local_.*_driver_spark_streaming_.*_processingRate_total_Value\"}",
+          "format": "time_series",
+          "legendFormat": "{{__name__}}",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rows/s",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
         "y": 0
       }
     }
