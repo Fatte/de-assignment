@@ -60,6 +60,7 @@ def parse_and_filter(df: DataFrame, schema: StructType) -> DataFrame:
         .filter(col("event_duration").isNotNull()) \
         .filter(col("status") != 'error')
 
+
 def aggregate_events(df: DataFrame) -> DataFrame:
     return df.withWatermark("event_time", "1 minute") \
         .groupBy(
