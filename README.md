@@ -27,6 +27,7 @@ Before running the project, ensure the following are installed on your **Unix-ba
 - ✅ Apache Spark **3.5.0 or higher**
 - ✅ Docker (with Docker Compose)
 - ✅ AWS CLI
+- ✅ yq package (apt install yq) for handling yml file in bash
 
 ---
 

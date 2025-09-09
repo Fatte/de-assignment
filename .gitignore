@@ -9,3 +9,5 @@ __pycache__/
 .coverage
 nohup.out
 s3/.env
+.vscode
+.env.generated

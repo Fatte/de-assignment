@@ -1,0 +1,14 @@
+streaming_config:
+  name: streaming_setup
+  version: 1.0
+  kafka:
+    KAFKA_BOOTSTRAP_SERVERS: "localhost:9092"
+    KAFKA_TOPIC_NAME: "device_topic"
+  s3:
+    STREAMING_AGGREGATED_S3_OUTPUT_PATH: "s3a://my-parametric-bucket/stream_output/"
+    STREAMING_AGGREGATED_S3_CHECKPOINT_PATH: "s3a://my-parametric-bucket/stream_checkpoints/"
+    STREAMING_RAW_S3_OUTPUT_PATH: "s3a://my-parametric-bucket/raw/stream_output/"
+    STREAMING_RAW_S3_CHECKPOINT_PATH: "s3a://my-parametric-bucket/raw/stream_checkpoints/"
+    PERCENTILE_VALIDATION_CSV_OUTPUT_PATH: "s3a://my-parametric-bucket/raw/percentile_output/"
+    NUM_EVENT_THRESHOLD: "200"
+
