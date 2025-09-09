@@ -88,9 +88,27 @@ jobs:
       with:
         python-version: '3.10'
 
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        pip install -r tests/integration/requirements.txt
+
+    - name: Install Spark 3.5.0
+      run: |
+        wget https://archive.apache.org/dist/spark/spark-3.5.0/spark-3.5.0-bin-hadoop3.tgz
+        tar xvf spark-3.5.0-bin-hadoop3.tgz
+        sudo mv spark-3.5.0-bin-hadoop3 /opt/spark
+        echo "export SPARK_HOME=/opt/spark" >> $GITHUB_ENV
+        echo "export PATH=\$SPARK_HOME/bin:\$PATH" >> $GITHUB_ENV
+
+    - name: Verify Spark
+      run: |
+        spark-submit --version
 
     - name: Start LocalStack
       run: |
